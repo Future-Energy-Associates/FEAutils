@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Publishes fea-utils to pypi, remember to bump the version number
+
+set -euo pipefail
+set -x
+
+clean_artifacts() {
+  rm -rf build dist ./*.egg-info
+}
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+pushd "$DIR"
+pyright && black --check .
+
+clean_artifacts
+python setup.py sdist bdist_wheel
+twine upload dist/*
+clean_artifacts
+
+echo "Done."
+popd
