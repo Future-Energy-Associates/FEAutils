@@ -48,7 +48,7 @@ def summarise_wrapper(df, operation, cond='tuple()', col=None, wrapper_type='aut
     
     return wrapper_type_to_process[wrapper_type](df, operation, cond, col)
 
-def summarise(df:pd.DataFrame, agg_ops:dict):
+def summarise(df_gb:pd.core.groupby.generic.DataFrameGroupBy, agg_ops:dict):
     """
     summarise accepts a dictionary of aggregation operations that 
     will be used to construct the returned summary dataframe. The
@@ -58,8 +58,8 @@ def summarise(df:pd.DataFrame, agg_ops:dict):
 
     Parameters
     ----------
-    df : pd.DataFrame
-        Dataframe over which the summarisation will be carried out
+    df_gb : pd.core.groupby.generic.DataFrameGroupBy
+        Groupby object over which the summarisation will be carried out
     agg_ops : dict
         Mapping from column names to aggregation operations
 
@@ -94,7 +94,7 @@ def summarise(df:pd.DataFrame, agg_ops:dict):
     }
     
     # Calculating summary statistics
-    df_summary = (df
+    df_summary = (df_gb
                   .apply(lambda df: pd.Series({
                       name: summarise_wrapper(df, operation, **kwargs) 
                       for name, (operation, kwargs)
