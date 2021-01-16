@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import pandas as pd
 
 # converting UNIX to str and back
 str_format = "%d-%m-%y %H.%M.%S"
