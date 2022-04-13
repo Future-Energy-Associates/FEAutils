@@ -11,4 +11,4 @@ Ensure you have your login to pypi, you will need username and password.
 
 If you have shell with bash, then make the publish script executable, then run it.  
 `chmod +x publish`  
-`./ publish`
+`./ publish` in Windows you can run `bash ./publish`
