@@ -97,9 +97,10 @@ def set_axis_attributes_and_style(
     if isinstance(axes_attributes, dict):
         axes_attributes = [axes_attributes.copy()]
 
-    assert len(axes_attributes) == len(
-        axes
-    ), f"The number of attributes being assigned ({len(axes_attributes)}) must match the number of axis ({len(axes)})"
+    if axes_attributes is not None:
+        assert len(axes_attributes) == len(
+            axes
+        ), f"The number of attributes being assigned ({len(axes_attributes)}) must match the number of axis ({len(axes)})"
 
-    for i, ax_att_kwargs in enumerate(axes_attributes):
-        axes[i].set(**ax_att_kwargs)
+        for i, ax_att_kwargs in enumerate(axes_attributes):
+            axes[i].set(**ax_att_kwargs)
