@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8", errors="ignore") as fh:
 
 setuptools.setup(
     name="FEAutils",
-    version="0.0.4",
+    version="0.0.5",
     author="Future Energy Associates",
     author_email="hello@futureenergy.associates",
     description="Helper utilities useful in energy data science",
