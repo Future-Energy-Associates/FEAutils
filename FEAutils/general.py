@@ -3,13 +3,24 @@ import requests
 import regex as re
 from IPython.display import JSON
 
+
+import io
+import json
+import subprocess
+import yaml
+
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
+from tqdm import tqdm
+
 # General functions
 from collections.abc import Iterable
 
 
 def summarise_wrapper(df, operation, cond="tuple()", col=None, wrapper_type="auto"):
     """
-    Carries out the individual summary operations 
+    Carries out the individual summary operations
 
     Parameters
     ----------
@@ -30,7 +41,7 @@ def summarise_wrapper(df, operation, cond="tuple()", col=None, wrapper_type="aut
     -------
     df_summary : pd.DataFrame
         Dataframe of summary statistics
-        
+
     """
 
     cond_method = (
@@ -63,11 +74,11 @@ def summarise_wrapper(df, operation, cond="tuple()", col=None, wrapper_type="aut
 
 def summarise(df_gb: pd.core.groupby.generic.DataFrameGroupBy, agg_ops: dict):
     """
-    summarise accepts a dictionary of aggregation operations that 
+    summarise accepts a dictionary of aggregation operations that
     will be used to construct the returned summary dataframe. The
     dictionary must map from the name of the new summary column to
     either a function/method, or a tuple that contains a function/
-    method as well as a dictionary of keyword arguments. 
+    method as well as a dictionary of keyword arguments.
 
     Parameters
     ----------
@@ -81,7 +92,7 @@ def summarise(df_gb: pd.core.groupby.generic.DataFrameGroupBy, agg_ops: dict):
     df_summary : pd.DataFrame
         Dataframe of summary statistics
 
-    e.g. 
+    e.g.
 
     ```
     agg_ops = {
@@ -135,7 +146,8 @@ msg_2_data = lambda record_msg: f'{"{"}"text":"{record_msg}"{"}"}'
 
 
 def send_slack_msg(
-    record_msg, slack_channel_url="",
+    record_msg,
+    slack_channel_url="",
 ):
     headers = {"Content-type": "application/json"}
     data = msg_2_data(record_msg)
@@ -190,3 +202,35 @@ def camel_to_snake(camel, replacements=None):
         snakes.append(snake)
 
     return snakes if len(snakes) > 1 else snake
+
+
+def shell(cmd):
+    proc = subprocess.run(cmd, shell=True, capture_output=True)
+    return proc.stdout.decode("utf-8")
+
+
+def version_as_tuple(v):
+    return tuple(map(int, v.split(".")))
+
+
+def get_history(p):
+    txt = shell(f"conda search -q {p} --info --json")
+    d = json.loads(txt)
+    h = defaultdict(set)
+    for vv in d.values():
+        for x in vv:
+            h[version_as_tuple(x["version"])].add(
+                datetime.fromtimestamp(x.get("timestamp", 0) / 1e3)
+            )
+    h = {vers: min(dates) for vers, dates in h.items()}
+    return p, h
+
+
+def get_package_history_from_yml(metayaml):
+    reqs = yaml.safe_load(metayaml)
+    all_pkgs = sorted(set([p.split()[0] for p in reqs]))
+
+    with ThreadPoolExecutor() as pool:
+        history = dict(tqdm(pool.map(get_history, all_pkgs), total=len(all_pkgs)))
+
+    return history
