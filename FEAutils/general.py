@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-import regex as re
+import re
 from IPython.display import JSON
 
 
