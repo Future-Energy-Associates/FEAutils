@@ -6,9 +6,6 @@ Install with `pip install feautils`
 
 ## Deploy to pypi
 
-Install the package `twine`  
-Ensure you have your login to pypi, you will need username and password.  
+Publishing a package is now done with the `Trusted Publisher Management` workflow via github. See this example for more details 
 
-If you have shell with bash, then make the publish script executable, then run it.  
-`chmod +x publish`  
-`./ publish` in Windows you can run `bash ./publish`
+https://medium.com/@blackary/publishing-a-python-package-from-github-to-pypi-in-2024-a6fb8635d45d
