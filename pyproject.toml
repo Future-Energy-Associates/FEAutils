@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "feautils"
-version = "0.0.7"
+version = "0.0.8"
 description = ""
 authors = ["Clem <clem@futureenergy.associates>"]
 readme = "README.md"
