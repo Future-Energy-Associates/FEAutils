@@ -3,16 +3,18 @@ import matplotlib.pyplot as plt
 from typing import Union
 
 # FEA colors
-fea_blue = "#3F83E4"
-fea_green = "#26D18A"
-fea_red = "#E05554"
-fea_yellow = "#FFC659"
-plot_area = "#f0eada"
-patch_area = "#fffaed"
+fea_colours = {
+    "blue": "#3F83E4",
+    "green": "#26D18A",
+    "red": "#E05554",
+    "yellow": "#FFC659",
+    "plot_area": "#f0eada",
+    "patch_area": "#fffaed",
+}
 
 # FEA default axes style
 default_ax_kwargs = {
-    "facecolor": plot_area,
+    "facecolor": fea_colours["plot_area"],
     "title_kwargs": {"fontweight": "bold", "fontsize": 12, "fontname": "Arial"},
     "xticklabel_kwargs": {"rotation": 45, "ha": "right", "wrap": True, "fontsize": 10},
     "yticklabel_kwargs": {"fontsize": 10},
@@ -65,7 +67,6 @@ def set_axis_attributes_and_style(
     kwargs: dict = default_ax_kwargs,
     hide_spine_positions: list = ["top", "right", "left"],
 ):
-
     """
     Set axis style using default kwargs
     """

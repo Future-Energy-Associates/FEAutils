@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 import re
-from IPython.display import JSON
+from IPython.display import JSON  # type: ignore
 
 
 import json

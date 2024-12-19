@@ -1,9 +1,9 @@
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from scipy.interpolate import interp1d
-from scipy.stats import norm
-from scipy.stats._morestats import _calc_uniform_order_statistic_medians
+from scipy.interpolate import interp1d  # type: ignore
+from scipy.stats import norm  # type: ignore
+from scipy.stats._morestats import _calc_uniform_order_statistic_medians  # type: ignore
 
 SEASON_MAP = {
     1: "Wtr",
@@ -111,7 +111,6 @@ class CorrelatedSampler:
 
 
 def get_missing_periods(year_kwh):
-
     """
     Get the missing periods in the year_kwh
     series for each season and weekday
@@ -186,7 +185,6 @@ def check_existing_data_length(year_kwh, season, weekday, min_periods=48 * 2):
 
 
 def fill_missing_season_weekday_mean(year_kwh, season, weekday):
-
     """
     Where there is enough data for a given season and weekday,
     fill missing values with the mean of the existing data for
@@ -219,9 +217,9 @@ def fill_missing_season_weekday_mean(year_kwh, season, weekday):
     filtered_data["kwh"] = filtered_data["kwh"].fillna(filtered_data["mean_kwh"])
 
     # Update the original dataframe with the filled values
-    year_kwh.loc[
-        (year_kwh.season == season) & (year_kwh.weekday == weekday), "kwh"
-    ] = filtered_data.kwh.values
+    year_kwh.loc[(year_kwh.season == season) & (year_kwh.weekday == weekday), "kwh"] = (
+        filtered_data.kwh.values
+    )
 
     year_kwh.loc[
         (year_kwh.season == season) & (year_kwh.weekday == weekday), "estimate"
