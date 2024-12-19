@@ -1,8 +1,5 @@
 import pandas as pd
-import os
 from pathlib import Path
-from datetime import datetime as dt
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.stats import norm
@@ -30,7 +27,33 @@ def settle_period_from_dt_index(index):
     return (index.hour * 2 + index.minute // 30) + 1
 
 
-def parse_raw_profile_classes(filepath: Path):
+def clean_df(df, unstack=True):
+    assert "Settlement period" in df.columns, "Settlement period column not found in df"
+    df.rename(columns={"Settlement period": "Timestamp"}, inplace=True)
+    assert "Timestamp" in df.columns, "Timestamp column not found in df"
+    df["Timestamp"] = df["Timestamp"].apply(
+        lambda t: pd.Timestamp.combine(pd.Timestamp("2000-01-01"), t)
+    )
+    df.set_index("Timestamp", inplace=True)
+
+    if unstack:
+        # for each column in the df split the column name into season and weekday and assign to multiindex
+        li = []
+        for col in df.columns:
+            season, weekday = col.split(" ")
+            new_df = df[col].to_frame("kwh")
+            new_df["season"] = season
+            new_df["weekday"] = weekday
+            li.append(new_df)
+
+        df = pd.concat(li, axis=0)
+
+    df["settlement_period"] = settle_period_from_dt_index(df.index)
+
+    return df
+
+
+def parse_raw_profile_classes(filepath: Path, unstack=True, return_long=False):
     """Reads the raw data from the excel file and returns a
     dictionary of profiles for each class
 
@@ -42,25 +65,30 @@ def parse_raw_profile_classes(filepath: Path):
 
     """
 
-    def clean_df(df):
-        df.rename(columns={"Settlement period": "Timestamp"}, inplace=True)
-        df["Timestamp"] = df["Timestamp"].apply(
-            lambda t: pd.Timestamp.combine(pd.Timestamp("2000-01-01"), t)
-        )
-        df.set_index("Timestamp", inplace=True)
-        df["settlement_period"] = settle_period_from_dt_index(df.index)
-        return df
-
     profile_classes = {}
+    li = []
     for i in range(8):
         df = pd.read_excel(filepath, skiprows=2 + 52 * i)[:48]
-        profile_classes[i + 1] = clean_df(df)
+        assert (
+            "Settlement period" in df.columns
+        ), "Settlement period column not found in df"
+        print(df.columns)
+        dfc = clean_df(df)
+        profile_classes[i + 1] = clean_df(dfc, unstack=unstack)
+        li.append(dfc)
+
+    df_long = pd.concat(li)
+
+    if return_long:
+        return df_long
 
     return profile_classes
 
 
 class CorrelatedSampler:
-    def __init__(self, distribution: np.ndarray, summary: int = 100, seed: int = None):
+    def __init__(
+        self, distribution: np.ndarray, summary: int = 100, seed: int | None = None
+    ):
         x = np.sort(distribution)
         y = _calc_uniform_order_statistic_medians(len(distribution))
 

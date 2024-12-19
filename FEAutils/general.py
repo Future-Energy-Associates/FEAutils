@@ -4,14 +4,13 @@ import re
 from IPython.display import JSON
 
 
-import io
 import json
 import subprocess
 import yaml
 
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import datetime
 from tqdm import tqdm
 
 # General functions
@@ -44,15 +43,13 @@ def summarise_wrapper(df, operation, cond="tuple()", col=None, wrapper_type="aut
 
     """
 
-    cond_method = (
-        lambda df, method, cond="tuple()", col=None: getattr(df.query(cond), method)()
+    cond_method = lambda df, method, cond="tuple()", col=None: (
+        getattr(df.query(cond), method)()
         if col is None
         else getattr(df.query(cond)[col], method)()
     )
-    cond_function = (
-        lambda df, function, cond="tuple()", col=None: function(df.query(cond))
-        if col is None
-        else function(df.query(cond)[col])
+    cond_function = lambda df, function, cond="tuple()", col=None: (
+        function(df.query(cond)) if col is None else function(df.query(cond)[col])
     )
 
     if "__name__" in dir(operation) and wrapper_type != "function":
@@ -62,9 +59,11 @@ def summarise_wrapper(df, operation, cond="tuple()", col=None, wrapper_type="aut
             operation = operation.__name__
 
     wrapper_type_to_process = {
-        "auto": lambda df, operation, cond, col: cond_method(df, operation, cond, col)
-        if operation in dir(df)
-        else cond_function(df, operation, cond, col),
+        "auto": lambda df, operation, cond, col: (
+            cond_method(df, operation, cond, col)
+            if operation in dir(df)
+            else cond_function(df, operation, cond, col)
+        ),
         "method": cond_method,
         "function": cond_function,
     }
@@ -154,12 +153,11 @@ def send_slack_msg(
 
     try:
         requests.post(slack_channel_url, headers=headers, data=data)
-    except:
-        print(f"Slack message failed to send\n{record_msg}")
+    except Exception:
+        raise Exception(f"Slack message failed to send\n{record_msg}")
 
 
 def camel_to_snake(camel, replacements=None):
-
     """
     Converts camel case to snake case. Accepts either a single string or a list.
     Optionally provide replacement strings in a dictionary as {'original_string':'replacement_string'}

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "feautils"
+version = "0.0.7"
+description = ""
+authors = ["Clem <clem@futureenergy.associates>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.2"
+requests = "^2.32.3"
+matplotlib = "^3.10.0"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.10.1"
+pytest = "^8.2.2"
+ruff = "^0.8.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+ignore = ["E731"]

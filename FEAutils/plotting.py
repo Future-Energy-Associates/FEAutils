@@ -1,5 +1,6 @@
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
+from typing import Union
 
 # FEA colors
 fea_blue = "#3F83E4"
@@ -60,7 +61,7 @@ def hide_spines(ax, positions=["top", "right"]):
 
 def set_axis_attributes_and_style(
     axes,
-    axes_attributes: dict | list = None,
+    axes_attributes: Union[dict, list, None] = None,
     kwargs: dict = default_ax_kwargs,
     hide_spine_positions: list = ["top", "right", "left"],
 ):
